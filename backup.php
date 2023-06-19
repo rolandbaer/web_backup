@@ -30,8 +30,25 @@ $backuped = "";
 if(is_numeric($run) and (int)$run < count($config)) {
     $name = $config[(int)$run]["name"];
     $path = $config[(int)$run]["path"];
-    exec('zip -r backup_' . $name .'.zip "' . $path . '"');
-    $backuped = $name;
+    if(exec('zip -r backup_' . $name .'.zip "' . $path . '"')) {
+      $backuped = $name;
+    }
+    else {
+      $error = "Error writing " . $filename;
+    }
+}
+
+$delete = $_GET["delete"];
+$deleted = "";
+if(is_numeric($delete) and (int)$delete < count($config)) {
+  $name = $config[(int)$delete]["name"];
+  $filename = 'backup_' . $name .'.zip';
+  if(unlink($filename)) {
+    $deleted = $filename;
+  }
+  else {
+    $error = "Error deleting " . $filename;
+  }
 }
 
 ?>
@@ -44,6 +61,10 @@ body {
 }
 p.success {
   background-color: LawnGreen;
+  padding: 1em;
+}
+p.error {
+  background-color: red;
   padding: 1em;
 }
 .backups {
@@ -68,6 +89,9 @@ p.success {
   padding: 6px 18px;
   text-decoration: none;
 }
+.del {
+  background-color: crimson;
+}
 </style></head>
 <body>
 <h1>Web Backup</h1>
@@ -75,7 +99,13 @@ p.success {
 if($backuped != "") {
     echo('<div><p class="success"><b>' . $backuped . '</b> backed up.</p></div>');
 }
-echo('<table class="backups"><tr><th>Name</th><th>Job</th><th>Date/Time</th><th>Size</th><th>Download</th></tr>');
+if($deleted != "") {
+  echo('<div><p class="success"><b>' . $deleted . '</b> deleted.</p></div>');
+}
+if($error != "") {
+  echo('<div><p class="error"><b>' . $error . '</b></p></div>');
+}
+echo('<table class="backups"><tr><th>Name</th><th>Job</th><th>Date/Time</th><th>Size</th><th>Download</th><th>Delete</th></tr>');
 echo("\n");
 for($row = 0; $row < count($config); $row++) {
     $name = $config[$row]["name"];
@@ -85,6 +115,10 @@ for($row = 0; $row < count($config); $row++) {
     echo('<td>' . get_size($filename) . '</td><td>');
     if(file_exists($filename)) {
         echo('<a class="btn" href="' . $filename .'">Download</a>');
+    }
+    echo('</td><td>');
+    if(file_exists($filename)) {
+      echo('<a class="btn del" href="backup.php?delete=' . $row . '">Delete</a>');
     }
     echo("</td></tr>\n");
 }
