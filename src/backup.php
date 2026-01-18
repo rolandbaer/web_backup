@@ -25,8 +25,15 @@ function get_size($filename) {
     return "";
 }
 
-$run = $_GET["run"];
+$run = isset($_GET["run"]) ? $_GET["run"] : "";
 $backuped = "";
+$error = "";
+
+if(`which zip`) { }
+else {
+  $error = "zip not available!";
+}
+
 if(is_numeric($run) and (int)$run < count($config)) {
     $name = $config[(int)$run]["name"];
     $path = $config[(int)$run]["path"];
@@ -34,11 +41,11 @@ if(is_numeric($run) and (int)$run < count($config)) {
       $backuped = $name;
     }
     else {
-      $error = "Error writing " . $filename;
+      $error = 'Error writing backup_' . $name .'.zip';
     }
 }
 
-$delete = $_GET["delete"];
+$delete = isset($_GET["delete"]) ? $_GET["delete"] : "";
 $deleted = "";
 if(is_numeric($delete) and (int)$delete < count($config)) {
   $name = $config[(int)$delete]["name"];
