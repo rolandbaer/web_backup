@@ -1,0 +1,8 @@
+version: "3.6"
+services:
+  web_backup:
+    image: php:8.3-apache
+    ports:
+      - 8080:80
+    volumes:
+      - ./src:/var/www/html
